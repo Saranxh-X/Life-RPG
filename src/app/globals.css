@@ -1,26 +1,424 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-pixel: var(--font-pixel);
+  --font-body: var(--font-vt323);
+  
+  --color-dungeon-dark: #09090f;
+  --color-dungeon-stone: #151524;
+  --color-dungeon-panel: #1e1e34;
+  --color-dungeon-border: #3b3a58;
+  --color-dungeon-border-light: #64638f;
+  
+  --color-gold: #f59e0b;
+  --color-gold-bright: #fde047;
+  --color-gold-dark: #b45309;
+  
+  --color-mana: #a855f7;
+  --color-mana-bright: #c084fc;
+  --color-mana-dark: #7e22ce;
+  
+  --color-emerald: #10b981;
+  --color-ruby: #ef4444;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  --bg-dungeon: #0b0b14;
+  --panel-bg: #141424;
+  --border-main: #3d3b5c;
+  --border-highlight: #706e9b;
+  --border-shadow: #06060a;
+  --accent-primary: #f59e0b;
+  --accent-magic: #a855f7;
+  --accent-hp: #ef4444;
+  --accent-xp: #10b981;
+  --torch-glow: rgba(245, 158, 11, 0.15);
+}
+
+/* Theme: Lava Forge */
+[data-theme="lava"] {
+  --bg-dungeon: #140808;
+  --panel-bg: #241111;
+  --border-main: #6e2a2a;
+  --border-highlight: #b94e4e;
+  --border-shadow: #0a0303;
+  --accent-primary: #f97316;
+  --accent-magic: #ef4444;
+  --torch-glow: rgba(239, 68, 68, 0.22);
+}
+
+/* Theme: Emerald Ruins */
+[data-theme="emerald"] {
+  --bg-dungeon: #07120c;
+  --panel-bg: #0e2217;
+  --border-main: #1e5237;
+  --border-highlight: #3b8b62;
+  --border-shadow: #030805;
+  --accent-primary: #10b981;
+  --accent-magic: #14b8a6;
+  --torch-glow: rgba(16, 185, 129, 0.18);
+}
+
+/* Theme: Celestial Void */
+[data-theme="celestial"] {
+  --bg-dungeon: #0d091a;
+  --panel-bg: #191233;
+  --border-main: #4c3280;
+  --border-highlight: #855ed4;
+  --border-shadow: #05030d;
+  --accent-primary: #c084fc;
+  --accent-magic: #e879f9;
+  --torch-glow: rgba(168, 85, 247, 0.2);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-dungeon);
+  color: #f1f5f9;
+  font-family: var(--font-body), "Courier New", monospace;
+  font-size: 1.35rem;
+  letter-spacing: 0.5px;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  image-rendering: pixelated;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Retro Pixel Font Headings */
+h1, h2, h3, h4, h5, h6, .font-pixel, .pixel-text {
+  font-family: var(--font-pixel), monospace;
+  letter-spacing: -0.5px;
+  text-shadow: 2px 2px 0px #000;
+  line-height: 1.3;
+}
+
+/* Authentic 16-Bit Pixel Borders & Slabs */
+.pixel-slab {
+  background-color: var(--panel-bg);
+  border: 4px solid var(--border-main);
+  box-shadow: 
+    inset 4px 4px 0px 0px var(--border-highlight),
+    inset -4px -4px 0px 0px var(--border-shadow),
+    4px 4px 0px 0px rgba(0, 0, 0, 0.85);
+  position: relative;
+}
+
+.pixel-slab-gold {
+  background-color: var(--panel-bg);
+  border: 4px solid #b45309;
+  box-shadow: 
+    inset 4px 4px 0px 0px #fde047,
+    inset -4px -4px 0px 0px #78350f,
+    4px 4px 0px 0px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(245, 158, 11, 0.25);
+}
+
+.pixel-slab-magic {
+  background-color: var(--panel-bg);
+  border: 4px solid #6b21a8;
+  box-shadow: 
+    inset 4px 4px 0px 0px #d8b4fe,
+    inset -4px -4px 0px 0px #3b0764,
+    4px 4px 0px 0px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(168, 85, 247, 0.3);
+}
+
+.pixel-slab-danger {
+  background-color: var(--panel-bg);
+  border: 4px solid #991b1b;
+  box-shadow: 
+    inset 4px 4px 0px 0px #fca5a5,
+    inset -4px -4px 0px 0px #450a0a,
+    4px 4px 0px 0px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(239, 68, 68, 0.3);
+}
+
+/* Ornate Corner Accents */
+.pixel-corners {
+  position: relative;
+}
+.pixel-corners::before,
+.pixel-corners::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--accent-primary);
+  pointer-events: none;
+  box-shadow: inset 1px 1px 0px #fff;
+  z-index: 10;
+}
+.pixel-corners::before {
+  top: -2px;
+  left: -2px;
+}
+.pixel-corners::after {
+  bottom: -2px;
+  right: -2px;
+}
+
+/* Parchment Dialogue Box (Retro RPG Style) */
+.parchment-box {
+  background: #231b14;
+  border: 4px solid #854d0e;
+  box-shadow: 
+    inset 4px 4px 0px 0px #ca8a04,
+    inset -4px -4px 0px 0px #451a03,
+    6px 6px 0px 0px rgba(0, 0, 0, 0.9);
+  color: #fef08a;
+  position: relative;
+}
+
+/* 16-Bit Pixel Push Buttons */
+.pixel-btn {
+  font-family: var(--font-pixel), monospace;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #000;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.05s ease-in-out;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pixel-btn:active {
+  transform: translate(3px, 3px);
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.6) !important;
+}
+
+/* Button Variants */
+.pixel-btn-gold {
+  background-color: #d97706;
+  color: #ffffff;
+  box-shadow: 
+    inset 3px 3px 0px #fde047,
+    inset -3px -3px 0px #78350f,
+    3px 3px 0px #000;
+  text-shadow: 2px 2px 0px #78350f;
+}
+.pixel-btn-gold:hover {
+  background-color: #f59e0b;
+}
+
+.pixel-btn-stone {
+  background-color: #334155;
+  color: #f8fafc;
+  box-shadow: 
+    inset 3px 3px 0px #94a3b8,
+    inset -3px -3px 0px #0f172a,
+    3px 3px 0px #000;
+  text-shadow: 2px 2px 0px #0f172a;
+}
+.pixel-btn-stone:hover {
+  background-color: #475569;
+}
+
+.pixel-btn-magic {
+  background-color: #7e22ce;
+  color: #faf5ff;
+  box-shadow: 
+    inset 3px 3px 0px #d8b4fe,
+    inset -3px -3px 0px #3b0764,
+    3px 3px 0px #000;
+  text-shadow: 2px 2px 0px #3b0764;
+}
+.pixel-btn-magic:hover {
+  background-color: #9333ea;
+}
+
+.pixel-btn-danger {
+  background-color: #b91c1c;
+  color: #ffffff;
+  box-shadow: 
+    inset 3px 3px 0px #fca5a5,
+    inset -3px -3px 0px #450a0a,
+    3px 3px 0px #000;
+  text-shadow: 2px 2px 0px #450a0a;
+}
+.pixel-btn-danger:hover {
+  background-color: #dc2626;
+}
+
+.pixel-btn-emerald {
+  background-color: #047857;
+  color: #ffffff;
+  box-shadow: 
+    inset 3px 3px 0px #6ee7b7,
+    inset -3px -3px 0px #064e3b,
+    3px 3px 0px #000;
+  text-shadow: 2px 2px 0px #064e3b;
+}
+.pixel-btn-emerald:hover {
+  background-color: #059669;
+}
+
+/* Torch Flame Animation */
+@keyframes flameFlicker {
+  0% { transform: scale(1) translateY(0) rotate(0deg); opacity: 0.95; }
+  25% { transform: scale(1.08, 0.92) translateY(-2px) rotate(-1deg); opacity: 1; }
+  50% { transform: scale(0.95, 1.05) translateY(-3px) rotate(1.5deg); opacity: 0.88; }
+  75% { transform: scale(1.04, 0.97) translateY(-1px) rotate(-0.5deg); opacity: 0.98; }
+  100% { transform: scale(1) translateY(0) rotate(0deg); opacity: 0.95; }
+}
+
+.torch-flame {
+  animation: flameFlicker 0.45s infinite ease-in-out;
+  transform-origin: bottom center;
+}
+
+@keyframes torchAmbientGlow {
+  0%, 100% { opacity: 0.45; filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.6)); }
+  50% { opacity: 0.7; filter: drop-shadow(0 0 28px rgba(245, 158, 11, 0.9)); }
+}
+
+.torch-glow {
+  animation: torchAmbientGlow 1.8s infinite ease-in-out;
+}
+
+/* Rising Embers Keyframes */
+@keyframes emberDrift {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(1);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-10vh) translateX(35px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+.ember-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background-color: #f59e0b;
+  box-shadow: 0 0 6px #fbbf24;
+  border-radius: 0px;
+  pointer-events: none;
+  animation: emberDrift 7s linear infinite;
+}
+
+/* Slash Micro-Interaction */
+@keyframes swordSlash {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(-45deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2) rotate(15deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5) rotate(45deg);
+  }
+}
+
+.slash-effect {
+  animation: swordSlash 0.4s ease-out forwards;
+}
+
+/* Floating Reward Flyout (+XP, +GOLD) */
+@keyframes floatReward {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(-12px) scale(1.15);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(-38px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-55px) scale(0.9);
+  }
+}
+
+.animate-float-reward {
+  animation: floatReward 1.2s ease-out forwards;
+}
+
+/* Full Screen Level Up Shake */
+@keyframes screenShake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-4px, 4px) rotate(-0.5deg); }
+  40% { transform: translate(4px, -3px) rotate(0.5deg); }
+  60% { transform: translate(-3px, -2px) rotate(0.3deg); }
+  80% { transform: translate(3px, 3px) rotate(-0.3deg); }
+}
+
+.level-up-shake {
+  animation: screenShake 0.5s ease-in-out;
+}
+
+/* Segmented Retro Progress Bar */
+.pixel-bar-container {
+  border: 3px solid #000;
+  background-color: #09090f;
+  box-shadow: inset 2px 2px 0px rgba(0,0,0,0.8), inset -2px -2px 0px rgba(255,255,255,0.1);
+  padding: 2px;
+  position: relative;
+}
+
+.pixel-bar-fill {
+  height: 100%;
+  background-size: 16px 16px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 12px,
+    rgba(0, 0, 0, 0.35) 12px,
+    rgba(0, 0, 0, 0.35) 16px
+  );
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Dialogue Cursor Blinking */
+@keyframes dialogueCursor {
+  0%, 100% { opacity: 1; transform: translateY(0); }
+  50% { opacity: 0; transform: translateY(3px); }
+}
+
+.cursor-blink {
+  animation: dialogueCursor 0.7s infinite;
+}
+
+/* Custom 16-Bit Scrollbar */
+::-webkit-scrollbar {
+  width: 14px;
+  height: 14px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d15;
+  border-left: 2px solid #28283d;
+}
+::-webkit-scrollbar-thumb {
+  background: #474563;
+  border: 2px solid #1a1a29;
+  box-shadow: inset 2px 2px 0px rgba(255, 255, 255, 0.25), inset -2px -2px 0px rgba(0, 0, 0, 0.5);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #626085;
+}
+
+/* Retro Dungeon Stone Wall Texture (CSS Pattern) */
+.dungeon-stone-pattern {
+  background-image: 
+    linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+    repeating-linear-gradient(0deg, transparent, transparent 38px, rgba(40, 40, 60, 0.4) 38px, rgba(40, 40, 60, 0.4) 40px),
+    repeating-linear-gradient(90deg, transparent, transparent 58px, rgba(40, 40, 60, 0.35) 58px, rgba(40, 40, 60, 0.35) 60px);
+  background-size: auto, 120px 80px, 120px 80px;
 }

@@ -1,69 +1,128 @@
-import Image from "next/image";
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { PixelButton } from "@/components/ui/PixelButton";
+import { DungeonBackground } from "@/components/layout/DungeonBackground";
+import { RetroLoading } from "@/components/layout/RetroLoading";
 
 export default function Home() {
+  const router = useRouter();
+  const { user, loginAsDemoHero } = useAuth();
+  const [loadingDemo, setLoadingDemo] = useState(false);
+
+  const handleDemoLogin = async () => {
+    setLoadingDemo(true);
+    await loginAsDemoHero();
+    setTimeout(() => {
+      router.push("/dashboard");
+    }, 400);
+  };
+
+  if (loadingDemo) {
+    return <RetroLoading message="PREPARING DEMO HERO..." />;
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen flex flex-col items-center justify-center relative p-4 overflow-hidden select-none">
+      <DungeonBackground />
+
+      <div className="z-10 text-center max-w-3xl w-full flex flex-col items-center py-10">
+        
+        {/* Dungeon Gate Crest */}
+        <div className="text-6xl sm:text-7xl mb-4 animate-pulse">
+          🏰
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        {/* Top Welcome Banner */}
+        <div className="mb-3">
+          <span className="font-pixel text-xs sm:text-sm text-amber-300 bg-amber-950/90 border-2 border-amber-600 px-4 py-1.5 shadow-[0_0_15px_rgba(245,158,11,0.35)] tracking-wider inline-block">
+            ⚔️ WELCOME TO REAL LIFE RPG QUESTS ⚔️
+          </span>
         </div>
-      </main>
-    </div>
+
+        <h1 className="text-4xl sm:text-6xl text-yellow-400 font-pixel tracking-wider drop-shadow-[0_4px_0_#78350f] mb-4">
+          LIFE RPG
+        </h1>
+
+        <p className="text-xl sm:text-2xl text-slate-300 font-body max-w-xl mb-8 leading-relaxed">
+          Turn your real-world obligations into legendary dungeon bounties.
+          Earn XP, accumulate gold, grow your attributes, and conquer your goals.
+        </p>
+
+        {/* Stone Portal Panel with Actions */}
+        <div className="pixel-slab p-6 sm:p-8 bg-slate-950/90 border-4 border-slate-700 w-full max-w-lg mb-8 space-y-4">
+          
+          {user ? (
+            <div className="space-y-4">
+              <div className="font-pixel text-sm text-yellow-300">
+                WELCOME BACK, {user.name}!
+              </div>
+              <Link href="/dashboard" className="block">
+                <PixelButton variant="gold" size="lg" className="w-full text-base py-3">
+                  ⚔ RETURN TO THE DUNGEON
+                </PixelButton>
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-3.5">
+              {/* Instant 1-Click Demo Entrance */}
+              <PixelButton
+                variant="gold"
+                size="lg"
+                onClick={handleDemoLogin}
+                className="w-full text-base py-3.5 shadow-lg"
+              >
+                ⚡ QUICK START AS GUEST HERO
+              </PixelButton>
+
+              <div className="flex items-center my-2">
+                <div className="flex-1 h-px bg-slate-800" />
+                <span className="px-3 text-xs font-pixel text-slate-500">OR</span>
+                <div className="flex-1 h-px bg-slate-800" />
+              </div>
+
+              {/* Login & Signup Buttons */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Link href="/auth?mode=login" className="block">
+                  <PixelButton variant="stone" size="md" className="w-full text-xs py-2.5">
+                    🗝️ ENTER DUNGEON
+                  </PixelButton>
+                </Link>
+                <Link href="/auth?mode=signup" className="block">
+                  <PixelButton variant="magic" size="md" className="w-full text-xs py-2.5">
+                    ✨ BEGIN YOUR ADVENTURE
+                  </PixelButton>
+                </Link>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* Feature Teasers */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-xl text-center">
+          <div className="bg-slate-950/80 border border-slate-800 p-2.5">
+            <div className="text-2xl mb-1">⚔️</div>
+            <div className="font-pixel text-[10px] text-yellow-300">RPG BOUNTIES</div>
+          </div>
+          <div className="bg-slate-950/80 border border-slate-800 p-2.5">
+            <div className="text-2xl mb-1">📊</div>
+            <div className="font-pixel text-[10px] text-yellow-300">4 STAT METERS</div>
+          </div>
+          <div className="bg-slate-950/80 border border-slate-800 p-2.5">
+            <div className="text-2xl mb-1">🎒</div>
+            <div className="font-pixel text-[10px] text-yellow-300">PIXEL BAG</div>
+          </div>
+          <div className="bg-slate-950/80 border border-slate-800 p-2.5">
+            <div className="text-2xl mb-1">👑</div>
+            <div className="font-pixel text-[10px] text-yellow-300">LEVEL UP FANFARE</div>
+          </div>
+        </div>
+
+      </div>
+    </main>
   );
 }
