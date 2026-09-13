@@ -45,11 +45,25 @@ export default function AuthPage() {
       if (isLogin) {
         await login(email, password);
       } else {
-        await register(name.trim() || "BRAVE HERO", email, heroClass, password);
+        const authenticated = await register(
+          name.trim() || "BRAVE HERO",
+          email,
+          heroClass,
+          password,
+        );
+        if (!authenticated) {
+          setError(
+            "Your hero was forged. Check your email to complete the ritual before entering.",
+          );
+          setLoading(false);
+          return;
+        }
       }
       router.push("/dashboard");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Authentication ritual failed");
+      setError(
+        err instanceof Error ? err.message : "Authentication ritual failed",
+      );
       setLoading(false);
     }
   };
@@ -64,11 +78,41 @@ export default function AuthPage() {
     return <RetroLoading message="OPENING THE DUNGEON GATES..." />;
   }
 
-  const classes: { id: HeroClass; name: string; icon: string; stat: string; desc: string }[] = [
-    { id: "WARRIOR", name: "WARRIOR", icon: "🛡️", stat: "+STR", desc: "Vanquisher of physical fatigue and workout goals." },
-    { id: "MAGE", name: "MAGE", icon: "🔮", stat: "+INT", desc: "Master of code, deep reading, and arcane study." },
-    { id: "PALADIN", name: "PALADIN", icon: "✨", stat: "+VIT", desc: "Guardian of vitality, restorative sleep, and wellness." },
-    { id: "ROGUE", name: "ROGUE", icon: "🗡️", stat: "+DISC", desc: "Shadow tracker of strict habits and deadlines." },
+  const classes: {
+    id: HeroClass;
+    name: string;
+    icon: string;
+    stat: string;
+    desc: string;
+  }[] = [
+    {
+      id: "WARRIOR",
+      name: "WARRIOR",
+      icon: "🛡️",
+      stat: "+STR",
+      desc: "Vanquisher of physical fatigue and workout goals.",
+    },
+    {
+      id: "MAGE",
+      name: "MAGE",
+      icon: "🔮",
+      stat: "+INT",
+      desc: "Master of code, deep reading, and arcane study.",
+    },
+    {
+      id: "PALADIN",
+      name: "PALADIN",
+      icon: "✨",
+      stat: "+VIT",
+      desc: "Guardian of vitality, restorative sleep, and wellness.",
+    },
+    {
+      id: "ROGUE",
+      name: "ROGUE",
+      icon: "🗡️",
+      stat: "+DISC",
+      desc: "Shadow tracker of strict habits and deadlines.",
+    },
   ];
 
   return (
@@ -77,17 +121,21 @@ export default function AuthPage() {
 
       <div className="z-10 w-full max-w-lg my-8">
         <div className="pixel-slab p-6 sm:p-8 bg-slate-950/95 border-4 border-slate-700 shadow-[0_0_50px_rgba(0,0,0,0.9)]">
-          
           {/* Header */}
           <div className="text-center mb-6 pb-4 border-b-2 border-slate-800">
-            <Link href="/" className="inline-block text-4xl mb-2 hover:scale-110 transition-transform">
+            <Link
+              href="/"
+              className="inline-block text-4xl mb-2 hover:scale-110 transition-transform"
+            >
               🏰
             </Link>
             <h1 className="font-pixel text-2xl sm:text-3xl text-yellow-400">
               LIFE RPG
             </h1>
             <p className="font-body text-slate-300 text-xl mt-1">
-              {isLogin ? "PRESENT YOUR CIPHER TO ENTER" : "FORGE YOUR HERO IDENTITY"}
+              {isLogin
+                ? "PRESENT YOUR CIPHER TO ENTER"
+                : "FORGE YOUR HERO IDENTITY"}
             </p>
           </div>
 
@@ -100,7 +148,6 @@ export default function AuthPage() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            
             {!isLogin && (
               <>
                 {/* Hero Name */}
@@ -136,9 +183,13 @@ export default function AuthPage() {
                       >
                         <div className="flex items-center gap-1.5">
                           <span className="text-xl">{cls.icon}</span>
-                          <span className="font-pixel text-xs text-yellow-200">{cls.name}</span>
+                          <span className="font-pixel text-xs text-yellow-200">
+                            {cls.name}
+                          </span>
                         </div>
-                        <div className="text-[10px] font-pixel text-emerald-400 mt-0.5">{cls.stat}</div>
+                        <div className="text-[10px] font-pixel text-emerald-400 mt-0.5">
+                          {cls.stat}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -187,7 +238,6 @@ export default function AuthPage() {
                 {isLogin ? "🗝️ ENTER DUNGEON" : "⚔ BEGIN YOUR ADVENTURE"}
               </PixelButton>
             </div>
-
           </form>
 
           {/* Quick Demo Button */}
@@ -217,7 +267,6 @@ export default function AuthPage() {
               </button>
             </div>
           </div>
-
         </div>
       </div>
     </main>

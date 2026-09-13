@@ -1,5 +1,5 @@
 // Auth Service - Handles authentication, character creation, and guest hero demo
-import { ApiClient, API_CONFIG } from "./apiClient";
+import { createClient } from "@/utils/supabase/client";
 
 export type HeroClass = "WARRIOR" | "MAGE" | "PALADIN" | "ROGUE";
 
@@ -63,108 +63,64 @@ const DEFAULT_DEMO_HERO: HeroProfile = {
 
 export class AuthService {
   public static async getCurrentUser(): Promise<HeroProfile | null> {
-    if (typeof window === "undefined") return null;
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.getUser();
 
-    if (!API_CONFIG.USE_MOCK) {
-      try {
-        return await ApiClient.request<HeroProfile>("/auth/me");
-      } catch {
-        return null;
-      }
-    }
-
-    const saved = localStorage.getItem(STORAGE_USER_KEY);
-    if (!saved) return null;
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return null;
-    }
+    if (error || !data.user) return null;
+    return this.profileFromUser(data.user);
   }
 
-  public static async login(email: string, password?: string): Promise<{ user: HeroProfile; token: string }> {
-    await ApiClient.simulateDelay(400);
+  public static async login(email: string, password: string): Promise<{ user: HeroProfile; token: string }> {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (!API_CONFIG.USE_MOCK) {
-      return await ApiClient.request("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ email, password }),
-      });
+    if (error || !data.user || !data.session) {
+      throw new Error(error?.message || "Unable to enter the dungeon.");
     }
 
-    // Mock Login
-    let user: HeroProfile;
-    const existing = localStorage.getItem(STORAGE_USER_KEY);
-    if (existing) {
-      const parsed = JSON.parse(existing);
-      user = { ...parsed, email };
-    } else {
-      user = {
-        id: `hero_${Date.now()}`,
-        name: email.split("@")[0].toUpperCase() || "HERO",
-        email,
-        heroClass: "WARRIOR",
-        title: "Dungeon Initiate",
-        createdAt: new Date().toISOString(),
-      };
-    }
-
-    const mockToken = `mock_jwt_dungeon_${Date.now()}`;
-    ApiClient.setToken(mockToken);
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
-    return { user, token: mockToken };
+    return {
+      user: this.profileFromUser(data.user),
+      token: data.session.access_token,
+    };
   }
 
   public static async register(
     name: string,
     email: string,
     heroClass: HeroClass,
-    password?: string
-  ): Promise<{ user: HeroProfile; token: string }> {
-    await ApiClient.simulateDelay(500);
+    password: string
+  ): Promise<{ user: HeroProfile | null; token: string | null }> {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username: name || "BRAVE HERO",
+          heroClass,
+        },
+      },
+    });
 
-    if (!API_CONFIG.USE_MOCK) {
-      return await ApiClient.request("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({ name, email, heroClass, password }),
-      });
+    if (error) {
+      throw new Error(error.message);
     }
 
-    const classTitles: Record<HeroClass, string> = {
-      WARRIOR: "Ironclad Vanguard",
-      MAGE: "Arcane Apprentice",
-      PALADIN: "Keeper of the Light",
-      ROGUE: "Shadow Prowler",
+    return {
+      user: data.user ? this.profileFromUser(data.user) : null,
+      token: data.session?.access_token ?? null,
     };
-
-    const user: HeroProfile = {
-      id: `hero_${Date.now()}`,
-      name: name || "UNKNOWN HERO",
-      email,
-      heroClass,
-      title: classTitles[heroClass] || "Dungeon Initiate",
-      createdAt: new Date().toISOString(),
-    };
-
-    const mockToken = `mock_jwt_dungeon_${Date.now()}`;
-    ApiClient.setToken(mockToken);
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
-    return { user, token: mockToken };
   }
 
   public static async loginAsDemoHero(): Promise<{ user: HeroProfile; token: string }> {
-    await ApiClient.simulateDelay(300);
     const mockToken = "mock_jwt_demo_champion";
-    ApiClient.setToken(mockToken);
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(DEFAULT_DEMO_HERO));
     return { user: DEFAULT_DEMO_HERO, token: mockToken };
   }
 
   public static async logout(): Promise<void> {
-    ApiClient.removeToken();
-    if (typeof window !== "undefined") {
-      localStorage.removeItem(STORAGE_USER_KEY);
-    }
+    const supabase = createClient();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw new Error(error.message);
   }
 
   public static async updateProfile(updates: Partial<HeroProfile>): Promise<HeroProfile> {
@@ -202,5 +158,22 @@ export class AuthService {
 
     localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(updated));
     return updated;
+  }
+
+  public static profileFromUser(user: { id: string; email?: string; created_at: string; user_metadata: Record<string, unknown> }): HeroProfile {
+    const heroClass = user.user_metadata.heroClass;
+    const validHeroClass: HeroClass =
+      heroClass === "MAGE" || heroClass === "PALADIN" || heroClass === "ROGUE" ? heroClass : "WARRIOR";
+
+    return {
+      id: user.id,
+      name: typeof user.user_metadata.username === "string" && user.user_metadata.username.trim()
+        ? user.user_metadata.username
+        : user.email?.split("@")[0].toUpperCase() || "HERO",
+      email: user.email || "",
+      heroClass: validHeroClass,
+      title: "Dungeon Initiate",
+      createdAt: user.created_at,
+    };
   }
 }
